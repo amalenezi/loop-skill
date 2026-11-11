@@ -7,6 +7,12 @@ description: Put design work on a Loop canvas, a local, shareable canvas of live
 
 Loop is a local canvas of **live frames**. Each frame is either a folder of static files (`index.html` + assets) or a live URL (for example a route on the project's running dev server). The user can interact with frames, draw on them, and point at an element and comment. Each comment is delivered to an agent together with the exact element (selector, text, HTML) and any marks drawn on it. While the agent works, the frame's title shows a loading state. When the work is done, the frame reloads in place.
 
+## Rules (always)
+
+- **Loop is the `loop` CLI and the canvas it serves at `http://localhost:<port>/__loop/`.** Only use it through `loop` commands. Never build your own canvas, viewer or gallery page, and never publish one as a hosted site. If `loop` can't be installed or won't run, stop and tell the user what failed.
+- **Never change Loop itself.** Its toolbar, menus, tools, theme and `.loop/` files are not yours to edit or extend. Your output is the content of frames: the project's code, or a frame's own folder.
+- **Never copy the app's code into frame folders.** For an existing app, frames are live routes of the running app (`loop scan`, `loop add-route`). Static frames (`loop new`) are for new designs, each one small and self-contained.
+
 ## Setup (first use only)
 
 The CLI is `loop` (Node 18+). Check with `command -v loop`. If it's missing, install it:
@@ -20,13 +26,17 @@ If a global install isn't allowed, run every command below as `npx -y loop-canva
 ## Make a canvas from a prompt
 
 1. **Decide what the frames are.**
-   - "Put this project (or its main screens) on a canvas": run `loop scan` from the project root. It detects the framework (Next.js, SvelteKit, Nuxt, Astro, Remix, React Router/Vite SPAs, Angular, or plain HTML), lists every screen, starts the project's dev server if it isn't running, and places every screen as a live frame (served through Loop, so the user can point at exact elements). Options: `--mobile` (phone, 393×852), `--landscape` (phone landscape, 852×393 — good for games), `--w W --h H` (any size), `--both` (desktop + phone side by side), `--limit N`, `--url http://localhost:PORT` (use a specific running server). Routes that need a URL value (e.g. `/posts/[id]`) are skipped; add the important ones by hand with real values: `loop add-route /posts/hello-world --name "Post"`.
-     If the app can't run (missing env vars, backend down), say so, and offer to build a static recreation of each screen as its own frame (step 2).
+   - "Put this project (or its main screens) on a canvas": run `loop scan` from the project root. It detects the framework (Next.js, SvelteKit, Nuxt, Astro, Remix, React Router/Vite SPAs, Angular, or plain HTML), starts the project's dev server if it isn't running, and places **one live frame of the app** (its home screen, served through Loop so the user can point at exact elements). The user clicks around inside it, and duplicates it (⌘D or ⌥-drag the title) to keep another screen side by side; the copy opens on the screen they navigated to. Options: `--mobile` (phone, 393×852), `--landscape` (phone landscape, 852×393, good for games), `--w W --h H` (any size), `--both` (desktop + phone), `--url http://localhost:PORT` (use a specific running server).
+     Add a specific screen only when the user asks for it: `loop add-route /settings --name "Settings"`. Don't place every screen: each live frame runs the whole app. `loop scan --all` exists, but only use it when the user explicitly asks for every screen at once.
+     If the app can't run (missing env vars, backend down), say so and ask which few screens matter; then build those as small static frames (step 2), never a copy of the whole app per frame.
    - "Explore / give me N directions for X": make N frames, one per distinct direction. Make them genuinely different (layout, hierarchy, tone), not one design with small tweaks.
 2. **Create a static frame:** `loop new "Pricing — editorial"` prints a folder path. Write a complete, self-contained `index.html` there: inline CSS/JS, CDN imports are fine, no build step, realistic content, working interactions. The canvas reloads the frame live as you write.
    - Sizes: `--w 1280 --h 800` desktop (default) · `--w 390 --h 844` mobile · `--w 834 --h 1112` tablet.
    - An existing folder or HTML file can be placed directly: `loop add ./prototypes/onboarding --name "Onboarding"`.
-3. **Open it:** `loop open`. This starts the server for this project (state lives in `./.loop/`) and opens the browser. Tell the user the URL.
+3. **Open it:** `loop open` (`loop scan` already does this). It starts Loop's server for this project in the background (state lives in `./.loop/`), prints a URL like `http://localhost:4848/__loop/`, and returns. Open **that exact URL**:
+   - In Codex, open it in Codex's built-in browser view. If you can't open a browser, give the user the URL to open.
+   - In Claude Code, it opens in the user's browser automatically.
+   The canvas is only ever that localhost page. If you find yourself writing HTML for a canvas, toolbar or comment UI, or publishing a site, stop: that's not Loop, and comments left there reach no one.
 4. **Share it, if asked:** `loop share` prints a link anyone on the same Wi-Fi can open (also in the canvas under **Share**). `loop share --public` makes a public link through a tunnel (needs `brew install cloudflared`). Guests can click through the frames and comment; their comments wait for the host's approval before reaching the agent.
 
 ## Keep the conversation in this chat (Claude Code)
