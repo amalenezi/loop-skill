@@ -39,15 +39,15 @@ If a global install isn't allowed, run every command below as `npx -y loop-canva
    The canvas is only ever that localhost page. If you find yourself writing HTML for a canvas, toolbar or comment UI, or publishing a site, stop: that's not Loop, and comments left there reach no one.
 4. **Share it, if asked:** `loop share` prints a link anyone on the same Wi-Fi can open (also in the canvas under **Share**). `loop share --public` makes a public link through a tunnel (needs `brew install cloudflared`). Guests can click through the frames and comment; their comments wait for the host's approval before reaching the agent.
 
-## Keep the conversation in this chat (Claude Code)
+## Comments come to this chat (Claude Code)
 
-If you can watch a long-running command and receive its output as messages (Claude Code: the Monitor tool, or a background command), do this right after opening the canvas:
+Loop is a visual canvas for you and the user to work on together. Their canvas comments are them talking to **you**, in this chat, with everything you already know about them and the project. So in Claude Code, always do this right after opening the canvas:
 
-1. Start `loop watch` as a background watcher. Each comment the user leaves on the canvas arrives as a line: `COMMENT <id> on "<frame>": "<text>" | full instructions: <file> | when done: loop reply …`.
-2. For each COMMENT line: read the instructions file, make the change, then run `loop reply <id> "<one sentence>" --model <your model id>`. The frame reloads and your reply appears in the canvas thread.
-3. If the user continues the conversation here in the chat about that frame, make the change and post a short update to the same canvas thread with `loop note <id> "<what you changed>"`, so the canvas stays in sync. Use `loop thread <id>` to read what was said on the canvas.
+1. Start `loop watch` with the Monitor tool (set the longest timeout, and start it again whenever it expires) and keep it running for the rest of the session. Each canvas comment arrives as a line: `COMMENT <id> on "<frame>": "<text>" | details: <file> | look: loop shot <frameId> | when done: loop reply …`.
+2. Treat each COMMENT exactly like a message from the user here. Read the details file (where they pointed, marks, attachments), look at the frame with `loop shot`, do the work the way you would for any request in this chat, check it with another screenshot, then answer with `loop reply <id> "<what you changed>" --model <your model id>`. The frame reloads and your reply shows in the canvas thread.
+3. If the user talks about a frame here in the chat instead, make the change and post a short update to its canvas thread with `loop note <id> "<what you changed>"`. `loop thread <id>` shows what was said on the canvas.
 
-Tell the user: "Comments you leave on the canvas will show up here, and I'll reply in both places." If the chat closes, Loop notices within about 45 seconds and runs comments in the background instead.
+Tell the user: "Comments you leave on the canvas come to me here, and I'll reply in both places." If this chat stops listening, comments wait on the canvas until it's back (the user can send one to a background agent from its thread).
 
 ## How comments reach an agent
 
@@ -62,10 +62,15 @@ Loop detects which agent launched it (Claude Code or Codex) and uses that same a
   3. While working, optionally show progress on the frame title: `loop step <commentId> "Editing the header"`.
   4. Finish with `loop reply <commentId> "One sentence on what changed" --model <your model id, e.g. claude-opus-5-5>` (add `--error` if you couldn't do it). The frame reloads, and the model shows under your reply.
 
+## Seeing your work and offering options
+- `loop shot <frameId>` saves a screenshot of a frame exactly as it renders and prints the PNG path. Look at it before and after a visual change, and fix what looks off before you reply.
+- When the user asks for options or alternatives on a comment, don't change the real files. For each option run `loop option <commentId> "<short name>"`, which prints an empty folder, and write the complete new version of each changed file there at the same relative path. The user previews the options live in the frame and picks one. `loop shot <frameId> --option <commentId>:A` shows an option on a static frame before anyone picks.
+
 ## Other commands
 `loop list` (frames + status) · `loop create "<brief>"` (Loop's own agent builds a new frame) · `loop rm <id>` · `loop stop`
 
 ## Notes
 - Keep static frames self-contained in their folder. The comment agent is only allowed to edit inside that folder.
+- Frames with a snowflake are **frozen**: read-only snapshots the user took to keep a moment (⇧F). Never edit a snapshot; a comment on one is a change to the app's source for that screen.
 - Name frames by what they are ("Checkout — one page", "Checkout — stepped"), not "Frame 1".
 - `.loop/canvas.json` holds the layout and comments; its folder includes a `.gitignore` for runtime files.
