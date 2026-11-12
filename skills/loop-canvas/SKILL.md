@@ -26,6 +26,10 @@ If a global install isn't allowed, run every command below as `npx -y loop-canva
 ## Make a canvas from a prompt
 
 1. **Decide what the frames are.**
+   - **An existing project: ask first, once, which kind of frames they want** (skip the question if they already said). Put it in plain words with your recommendation first:
+     - **Live** (recommended when they are refining the real product): each frame is the real running app. What they approve is already in the project, and options appear running beside the screen.
+     - **Static**: a few screens redrawn as standalone pages. Free to reshape and move things by hand, and nothing in the project changes; an approved design still has to be built into the app afterwards.
+     Live is the steps below. Static is step 2, for the few screens that matter.
    - "Put this project (or its main screens) on a canvas": run `loop scan` from the project root. It detects the framework (Next.js, SvelteKit, Nuxt, Astro, Remix, React Router/Vite SPAs, Angular, or plain HTML), starts the project's dev server if it isn't running, and places **one live frame of the app** (its home screen, served through Loop so the user can point at exact elements). The user clicks around inside it, and duplicates it (⌘D or ⌥-drag the title) to keep another screen side by side; the copy opens on the screen they navigated to. Options: `--mobile` (phone, 393×852), `--landscape` (phone landscape, 852×393, good for games), `--w W --h H` (any size), `--both` (desktop + phone), `--url http://localhost:PORT` (use a specific running server).
      Add a specific screen only when the user asks for it: `loop add-route /settings --name "Settings"`. Don't place every screen: each live frame runs the whole app. `loop scan --all` exists, but only use it when the user explicitly asks for every screen at once.
      If the app can't run (missing env vars, backend down), say so and ask which few screens matter; then build those as small static frames (step 2), never a copy of the whole app per frame.
@@ -65,13 +69,15 @@ Loop detects which agent launched it (Claude Code or Codex) and uses that same a
 
 ## Seeing your work and offering options
 - `loop shot <frameId>` saves a screenshot of a frame exactly as it renders and prints the PNG path. Use it to check design work and layout changes, and fix what looks off before you reply. A comment's details already include a screenshot from the moment it was sent, and a small, specific fix doesn't need another.
-- When the user asks for options or alternatives on a comment, don't change the real files. For each option run `loop option <commentId> "<short name>"`, which prints an empty folder, and write the complete new version of each changed file there at the same relative path. The user previews the options live in the frame and picks one. `loop shot <frameId> --option <commentId>:A` shows an option on a static frame before anyone picks.
+- When the user asks for options or alternatives on a comment, don't change the real files. Make exactly as many as they asked for: "a variation" or "another version" is one; a number is that number; only a plural with no number ("some options") is your call, 2 or 3. For each option run `loop option <commentId> "<short name>"`, which prints an empty folder, and write the complete new version of each changed file there at the same relative path. Each option appears on the canvas as its own frame beside the original, filling in as you write it, and the user picks with "Use this" (on an app that needs a build step they preview it in the frame instead). `loop shot <frameId> --option <commentId>:A` shows an option on a static frame before anyone picks.
 
 ## Other commands
 `loop list` (frames + status) · `loop create "<brief>"` (Loop's own agent builds a new frame) · `loop rm <id>` · `loop stop`
 
 ## Notes
 - Keep static frames self-contained in their folder. The comment agent is only allowed to edit inside that folder.
+- The user can drop or paste images onto the canvas (screenshots, references, a frame copied from a design tool as PNG); each is a frame holding that image. Treat them as references: when they ask to make a screen look like one, change the screen, not the image.
+- A frame can be resized: `loop size <frameId> <width> <height>`. When asked to rebuild a design from a link, read the linked file's structure with whatever tool you have for it (layout, text styles, colours, components, variables, assets) rather than copying a picture, size the frame to the original, then compare your page with a render of the original (`loop shot`) and fix differences until they match.
 - Frames with a snowflake are **frozen**: read-only snapshots the user took to keep a moment (⇧F). Never edit a snapshot; a comment on one is a change to the app's source for that screen.
 - Name frames by what they are ("Checkout — one page", "Checkout — stepped"), not "Frame 1".
 - `.loop/canvas.json` holds the layout and comments; its folder includes a `.gitignore` for runtime files.
