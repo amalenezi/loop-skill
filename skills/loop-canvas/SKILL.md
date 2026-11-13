@@ -77,6 +77,7 @@ Loop detects which agent launched it (Claude Code or Codex) and uses that same a
 ## Notes
 - Keep static frames self-contained in their folder. The comment agent is only allowed to edit inside that folder.
 - The user can drop or paste images onto the canvas (screenshots, references, a frame copied from a design tool as PNG); each is a frame holding that image. Treat them as references: when they ask to make a screen look like one, change the screen, not the image.
+- A Loop link (`http://localhost:<port>/__loop/#f=…`, or a share link ending in `#f=…`) points at a frame or an element on the canvas; `loop link <link>` says which frame, which element (a CSS selector) and where its file is. In a comment, things written as @name are such links; their details come with the comment.
 - A frame can be resized: `loop size <frameId> <width> <height>`. When asked to rebuild a design from a link, read the linked file's structure with whatever tool you have for it (layout, text styles, colours, components, variables, assets) rather than copying a picture, size the frame to the original, then compare your page with a render of the original (`loop shot`) and fix differences until they match.
 - Frames with a snowflake are **frozen**: read-only snapshots the user took to keep a moment (⇧F). Never edit a snapshot; a comment on one is a change to the app's source for that screen.
 - Name frames by what they are ("Checkout — one page", "Checkout — stepped"), not "Frame 1".
